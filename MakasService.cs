@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.Json;
 using AssettoServer.Network.ClientMessages;
 using AssettoServer.Network.Tcp;
+using AssettoServer.Server.Ai;
 using AssettoServer.Server;
 using AssettoServer.Server.Plugin;
 using Microsoft.Extensions.Hosting;
@@ -152,7 +153,13 @@ public class MakasService : BackgroundService
                 var client = car.Client;
                 if (!IsDrift && client == null && car.AiControlled)
                 {
-                    ai.Add((car.SessionId, car.Status.Position, car.Status.Velocity));
+                    // AI konumu EntryCar.Status'ta degil, AiState.Status icinde tutulur
+                    int idx = 0;
+                    foreach (var state in car.GetInitializedStates())
+                    {
+                        ai.Add((car.SessionId * 16 + idx, state.Status.Position, state.Status.Velocity));
+                        idx++;
+                    }
                     continue;
                 }
                 if (client == null || !client.HasSentFirstUpdate) continue;
