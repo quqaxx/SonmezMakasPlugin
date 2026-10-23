@@ -1,0 +1,49 @@
+name: Build Sonmez Plugins
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Plugin kaynaklari
+        uses: actions/checkout@v4
+        with:
+          path: mine
+
+      - name: AssettoServer kaynagi
+        uses: actions/checkout@v4
+        with:
+          repository: compujuckel/AssettoServer
+          ref: v0.0.55-pre44
+          path: src
+          submodules: recursive
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 11.0.x
+          dotnet-quality: preview
+
+      - name: Derle
+        run: |
+          TFM=$(grep -rhoP '(?<=<TargetFramework>)[^<]+' src/AssettoServer/AssettoServer.csproj src/Directory.Build.props 2>/dev/null | head -n1 || true)
+          echo "TFM=$TFM"
+          mkdir -p out
+          # Repo kokunde de, alt klasorde de olsa Sonmez*Plugin.csproj dosyalarini bulur
+          find mine -name 'Sonmez*Plugin.csproj' | while read -r proj; do
+            dir=$(dirname "$proj"); name=$(basename "$proj" .csproj)
+            echo "== $name ($dir)"
+            mkdir -p "src/$name"
+            rsync -a --exclude .git --exclude .github --exclude 'SonmezMakasPlugin' --exclude 'SonmezDriftPlugin' "$dir/" "src/$name/"
+            if [ -n "$TFM" ]; then
+              sed -i "s#<TargetFramework>.*</TargetFramework>#<TargetFramework>$TFM</TargetFramework>#" "src/$name/$name.csproj"
+            fi
+            dotnet publish "src/$name" -c Release -o "out/$name"
+          done
+          ls out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SonmezPlugins
+          path: out/
