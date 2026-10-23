@@ -8,7 +8,7 @@ public class MakasConfiguration : IValidateConfiguration<MakasConfigurationValid
     // ---- Yarış ----
     public bool RaceEnabled { get; set; } = true;   // 3x korna ile yarış (iki pluginden sadece birinde açık olsun)
     public float RaceDistanceMeters { get; set; } = 1500f;
-    public float RaceRadiusMeters { get; set; } = 120f;     // 3. kornada bu mesafedeki oyuncular yarışa alınır
+    public float RaceRadiusMeters { get; set; } = 20f;      // 3. kornada bu mesafedeki (metre) oyuncular yarışa alınır; 0 = sunucudaki herkes
     public int CountdownSeconds { get; set; } = 3;          // 3-2-1
     public int FinishBannerSeconds { get; set; } = 8;
     public int RaceTimeoutSeconds { get; set; } = 240;
