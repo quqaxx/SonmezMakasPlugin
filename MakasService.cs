@@ -54,6 +54,8 @@ public class MakasService : BackgroundService
     private long _tick;
     private long _lastSave;
     private long _lastDebug;
+    private readonly List<AiState> _aiInit = new();
+    private readonly List<AiState> _aiUninit = new();
 
     public MakasService(MakasConfiguration config, EntryCarManager entryCarManager,
         CSPServerScriptProvider scriptProvider, CSPClientMessageTypeManager clientMessages)
@@ -155,7 +157,9 @@ public class MakasService : BackgroundService
                 {
                     // AI konumu EntryCar.Status'ta degil, AiState.Status icinde tutulur
                     int idx = 0;
-                    foreach (var state in car.GetInitializedStates())
+                    _aiInit.Clear(); _aiUninit.Clear();
+                    car.GetInitializedStates(_aiInit, _aiUninit);
+                    foreach (var state in _aiInit)
                     {
                         ai.Add((car.SessionId * 16 + idx, state.Status.Position, state.Status.Velocity));
                         idx++;
