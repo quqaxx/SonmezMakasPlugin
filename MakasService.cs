@@ -351,10 +351,10 @@ public class MakasService : BackgroundService
         {
             foreach (var a in active.Where(x => x.d.RaceRequest))
             {
-                var near = active.Where(o => Horizontal(o.pos, a.pos) <= _cfg.RaceRadiusMeters).ToList();
+                var near = active.Where(o => _cfg.RaceRadiusMeters <= 0f || Horizontal(o.pos, a.pos) <= _cfg.RaceRadiusMeters).ToList();   // 0 = sunucudaki herkes
                 if (near.Count < 2)
                 {
-                    a.client.SendChatMessage("Yakında rakip yok! Yarış için en az 2 oyuncu yakın olmalı.");
+                    a.client.SendChatMessage("Yakında rakip yok! Yarış için en az 2 oyuncu 20 metre içinde olmalı.");
                     continue;
                 }
                 _r.Racers.Clear(); _r.Dist.Clear(); _r.Last.Clear();
